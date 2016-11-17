@@ -1,15 +1,14 @@
 ##
 # @auth: Reese Russell
 # @desc: Python Maze Solver
-#
 
 #Dependencies
 import sys
 import maze_functions as mazeLib
 #Constants (non pythonic)
 debug = True
-grid = [[0,1,1,0],
-        [0,0,0,1],
+grid = [[0,0,1,0],
+        [1,0,0,1],
         [1,1,0,0],
         [1,1,1,0]]
 #Get some info about the 2D array analysis
@@ -29,13 +28,14 @@ for i in range (cols):
             grid[i][j] = 0
         else:
             grid[i][j] = 1
-
 #Put the maze in a dictonary to make it readable and with easy to access parameters
 maze = {'maze': grid, 'height': rows, 'width': cols}
-#solve the maze for min condition with 1 wall change
-#2d arrays are array[row][column]
-cur_min = None
+#A tree will contain all of the branches
+tree = []
+#Store the current minimum for best_child checking
+cur_min = None #The current minimum path
 #Initial branch [[col, row, last traversed leaf index, leaves, wall_built]]
-branch = {'x': 0, 'y': 0, 'last_leaf': 0, 'leafs':[], 'wall_built': False}
+branch = {'x':0, 'y':0, 'last_leaf':0, 'leafs':[], 'wall_built': False, 'parent': None, 'best_child': None, 'id':0}
 
+mazeLib.legal_list([4,4],[4,4])
 mazeLib.leaf_gen(maze,branch)

@@ -1,3 +1,6 @@
+##
+# @auth: Reese Russell
+# @desc: Python Maze Solver Functions
 
 ##
 # @desc: Generates a list of legal test points for leaf generation
@@ -25,8 +28,21 @@ def legal_list(dims, loc):
 # @param: [maze] the maze constant that will queried for leafs
 # @param: [branch] branch to be evaluated from sprout leafs
 def leaf_gen(maze, branch):
-    leafs = legal_list([maze['width'],maze['height']], [branch['x'], branch['y']])
-    print(leafs)
+    leafs = [] #Store the leafs
+    #legal positions for a leaf to grow
+    legal_moves = legal_list([maze['width'],maze['height']], [branch['x'], branch['y']])
+    #overlay these moves onto the maze and list all possible moves
+    #!!!FIXME!!! There is a row col addressing swap I do not understand
+    for candidate in (legal_moves):
+        if(maze['maze'][candidate[0]][candidate[1]] == 1):
+            leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': branch['wall_built'], 'parent': branch['id'], 'best_child': None, 'id': (branch['id'] + 1)}
+            leafs.append(leaf)
+            print (leaf)
+        elif((maze['maze'][candidate[0]][candidate[1]] == 0) and (branch['wall_built'] == False)):
+            leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': True, 'parent': branch['id'], 'best_child': None, 'id': (branch['id'] + 1)}
+            leafs.append(leaf)
+            print (leaf)
+    return leafs
 
 ##
 # @desc: Tests the validity of leaf nodes, in essence, will the leaf result in a path? If yes then make the leaf a new branch

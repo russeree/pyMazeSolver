@@ -47,25 +47,21 @@ def leaf_gen(grid, branch):
 # @param: [loc] test location [x][y]
 # @return: [moves] this will be where the list of legal moves is stored
 # @note: Only works with 2d arrays, does not eliminate your previous move
+# @note: Moves in the Y direction should be multiplied by negative one unless you want to invert the Y axis
 def legal_list(dims, loc):
-    moves = []
+    #Default Template for valid moves (up, down, left, right], List = [[x,y], ...]
+    moves = [[0,1],[0,-1],[-1,0],[1,0]]
+    valid_moves = []
     removal_idx = []
-    #Generate a list of all possible moves
-    for y in range (-1,2):
-        for x in range (-1,2):
-            moves.append([(loc[0] + x),(loc[0] + y)])
-    #Remove the current location from the array
-    moves.remove([0,0])
-    #Check if when cords are multiplied they are 0 or positive
-    for idx, loc in enumerate(moves):
-        if((loc[0] < 0) or (loc[1] < 0)):
+    #Filer moves that would put the player out of the maze + and - bounds, place invalid indices in removal idx
+    for idx, movement in enumerate(moves):
+        #Filter the moves that cause negative array access (look up if there is a method to shortening this)
+        if(((loc[0] + movement[0]) < 0) or ((loc[1] + movement[1]) < 0) or ((loc[0] + movement[0]) > dims[0]) or ((loc[1] + movement[1]) > dims[1])):
             removal_idx.append(idx)
-            print("Need to remove " + str(loc))
-    for remove_element in (removal_idx):
-        moves[remove_element] = [0,0]
-    #!!FIXME!! Make a filter that works
-    filter(lambda a: a != [0,0], moves)
+    print (removal_idx)
+    #Check if when cords are multiplied they are 0 or positive
     print(moves)
     return(moves)
 
-lol = legal_list([4,4],[0,0])
+#testing the legal_list
+lol = legal_list([4,4],[4,4])

@@ -37,5 +37,5 @@ cur_min = None #The current minimum path
 #Initial branch [[col, row, last traversed leaf index, leaves, wall_built]]
 branch = {'x':0, 'y':0, 'last_leaf':0, 'leafs':[], 'wall_built': False, 'parent': None, 'best_child': None, 'id':0}
 
-mazeLib.legal_list([4,4],[4,4])
 mazeLib.leaf_gen(maze,branch)
+mazeLib.grow_leafs(maze,branch)

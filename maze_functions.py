@@ -37,17 +37,39 @@ def leaf_gen(maze, branch):
         if(maze['maze'][candidate[0]][candidate[1]] == 1):
             leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': branch['wall_built'], 'parent': branch['id'], 'best_child': None, 'id': (branch['id'] + 1)}
             leafs.append(leaf)
-            print (leaf)
         elif((maze['maze'][candidate[0]][candidate[1]] == 0) and (branch['wall_built'] == False)):
             leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': True, 'parent': branch['id'], 'best_child': None, 'id': (branch['id'] + 1)}
             leafs.append(leaf)
-            print (leaf)
     return leafs
-
 ##
-# @desc: Tests the validity of leaf nodes, in essence, will the leaf result in a path? If yes then make the leaf a new branch
-# @param: [movements] a list of possible movements inside of the maze based on bounds
-# @param: [previous_branch] The previous branch (vertex) that got you to your current location
-# @param: [current_branch] The current branch for leaf analysis
-def branch_to_leafs(movements, previous_branch, next_branch):
-    print ("STUB FUNCTION")
+# @desc: Takes a list of leaves and returns a branch
+# @param: [branch] Takes in a branch and generates a list of leafs
+# @param: [maze] list as a maze
+# @return: Returns a branch with a list of leafs
+def grow_leafs(maze, branch):
+    #places leafs in in the current branch for evaluation
+    branch['leafs'] = leaf_gen(maze, branch)
+##
+# @desc: Iterates through a branches leafs and determines if there is death, growth, or end condition
+# @param:[seed_branch] takes in the branch to be evaluated
+# @param:[maze] takes in the maze to be solved
+def solve_maze(maze, seed_branch):
+    #Stores a list of branches that reached position [[y - 1],[x -1]]
+    path_lengths = []``
+    #Pruning index this is a list of leaves that need to removed from the current branch because they produce no seeds
+    pruning_idx = []
+    #For each leaf in the current branch check to see if it was able to grow leaves so it can become of branch or one of the leafs was the win condition
+    for idx, leaf in enumerate(current_branch['leafs']):
+        # Grow the leafs on the branch
+        grow_leafs(maze, leaf)
+        if (not leaf['leafs']): #If no leafs grow the branch has died
+            pruning_idx.append[idx]
+        elif (leaf['id'] > (maze['height'] * maze['width'])): #If the branch has exceeded to moves in the maze the branch has died
+            pruning_idx.append[idx]
+        elif (leaf['y'] == (maze['height'] - 1)): #If the leaf exists on lower wall of the maze check the x cordinate
+            if(leaf['x'] == (maze['width'] - 1)): #If the leaf is on the outer edge too record the number of branches
+                pruning_idx.append(leaf['id'])
+    #prune the dead leafs and turn the new ones into branchs
+    for index in sorted(pruning_idx, reverse = True):
+        del current_branch['leafs'][index]
+

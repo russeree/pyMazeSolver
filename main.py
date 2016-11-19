@@ -7,6 +7,7 @@ import sys
 import maze_functions as mazeLib
 #Constants (non pythonic)
 debug = True
+lut = None
 grid = [[0,0,1,0],
         [1,0,0,1],
         [1,1,0,0],
@@ -28,6 +29,8 @@ for i in range (cols):
             grid[i][j] = 0
         else:
             grid[i][j] = 1
+lut = [[None for x in range(cols)] for y in range(rows)]
+print (lut)
 #Put the maze in a dictonary to make it readable and with easy to access parameters
 maze = {'maze': grid, 'height': rows, 'width': cols}
 #A tree will contain all of the branches

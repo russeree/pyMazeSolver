@@ -35,10 +35,10 @@ def leaf_gen(maze, branch):
     #!!!FIXME!!! There is a row col addressing swap I do not understand
     for candidate in (legal_moves):
         if(maze['maze'][candidate[0]][candidate[1]] == 1):
-            leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': branch['wall_built'], 'parent': branch['id'], 'best_child': None, 'id': (branch['id'] + 1)}
+            leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': branch['wall_built'], 'parent':[branch['x'],branch['y']], 'id': (branch['id'] + 1)}
             leafs.append(leaf)
         elif((maze['maze'][candidate[0]][candidate[1]] == 0) and (branch['wall_built'] == False)):
-            leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': True, 'parent': branch['id'], 'best_child': None, 'id': (branch['id'] + 1)}
+            leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': True, 'parent':[branch['x'],branch['y']], 'id': (branch['id'] + 1)}
             leafs.append(leaf)
     return leafs
 ##
@@ -50,26 +50,41 @@ def grow_leafs(maze, branch):
     #places leafs in in the current branch for evaluation
     branch['leafs'] = leaf_gen(maze, branch)
 ##
-# @desc: Iterates through a branches leafs and determines if there is death, growth, or end condition
-# @param:[seed_branch] takes in the branch to be evaluated
-# @param:[maze] takes in the maze to be solved
-def solve_maze(maze, seed_branch):
-    #Stores a list of branches that reached position [[y - 1],[x -1]]
-    path_lengths = []``
-    #Pruning index this is a list of leaves that need to removed from the current branch because they produce no seeds
-    pruning_idx = []
-    #For each leaf in the current branch check to see if it was able to grow leaves so it can become of branch or one of the leafs was the win condition
-    for idx, leaf in enumerate(current_branch['leafs']):
-        # Grow the leafs on the branch
-        grow_leafs(maze, leaf)
-        if (not leaf['leafs']): #If no leafs grow the branch has died
-            pruning_idx.append[idx]
-        elif (leaf['id'] > (maze['height'] * maze['width'])): #If the branch has exceeded to moves in the maze the branch has died
-            pruning_idx.append[idx]
-        elif (leaf['y'] == (maze['height'] - 1)): #If the leaf exists on lower wall of the maze check the x cordinate
-            if(leaf['x'] == (maze['width'] - 1)): #If the leaf is on the outer edge too record the number of branches
-                pruning_idx.append(leaf['id'])
-    #prune the dead leafs and turn the new ones into branchs
-    for index in sorted(pruning_idx, reverse = True):
-        del current_branch['leafs'][index]
+# @name: branch_lut
+# @desc: Maps a branch to the branch map
+# @desc_ext: Function takes in a branch, if the branch has no living leaves then kill the branch off by unmapping from the branch matrix
+# @param: [branch], This is the branch that will be evaluated for termination
+# @param: [lut], An array the same dimensions as the maze but will contain a list of living branches and their state \
+#         This is used as an element lookup table to avoid recursion in lists for branches
+def branch_lut(branch, lut):
+    if not branch['leafs']:
+        lut[branch['y']][branch['x']] = None
+    else:
+        lut[branch['y']][branch['x']] = branch
 
+##
+# @notes: At this point I have a function to generate valid leafs from a given branch \
+# then I have a way to add the leafs as a list element of a branch, once this is complete you have a complete list of the branch and \
+# the possible moves that can be taken, from there you can store the branch in the look up table. \
+# the goal is to exhaust kill all the leafs of a branch, A leaf can die in one of two ways,
+#  - The leaf has beaten the maze
+#  - The leaf has no more moves to be consumed [No valid moves on the board, all valid move runs into an existing path, the wall has been built]
+
+##
+# @name: collision_check
+# @desc: Checks against the lookup table to verify that a path is untraveled, This prevents loops
+# @desc: [leaf] the leaf node to be checked
+# @desc: [lut] Lookup table of branches
+# @return: Returns a boolean
+def collision_check(leaf, lut):
+    #If the lookup for the next position is not empty return True for a collision
+    if(lut[leaf['y']][leaf['x']]['id'] != None):
+        return True
+    else:
+        return False
+
+##
+# @name: leaf_destruction
+# @desc: given a branch with leafs, exhaust all leafs then return to the parent branch
+# @param: [branch] the branch to be evaluated
+def leaf_destruction(branch)

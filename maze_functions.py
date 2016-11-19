@@ -2,6 +2,10 @@
 # @auth: Reese Russell
 # @desc: Python Maze Solver Functions
 
+#Dependencies
+import copy
+from multiprocessing import pool
+
 ##
 # @desc: Generates a list of legal test points for leaf generation
 # @param: [dims] Maze dimensions [x][y]
@@ -9,6 +13,7 @@
 # @return: [moves] this will be where the list of legal moves is stored
 # @note: Only works with 2d arrays, does not eliminate your previous move
 # @note: Moves in the Y direction should be multiplied by negative one unless you want to invert the Y axis
+
 def legal_list(dims, loc):
     #Default Template for valid moves (up, down, left, right], List = [[x,y], ...]
     moves = [[0,1],[0,-1],[-1,0],[1,0]]
@@ -60,8 +65,8 @@ def branch_lut(branch, lut):
     if not branch['leafs']:
         lut[branch['y']][branch['x']] = None
     else:
+        branch.update({'lut': copy.deepcopy(lut)})
         lut[branch['y']][branch['x']] = branch
-
 ##
 # @notes: At this point I have a function to generate valid leafs from a given branch \
 # then I have a way to add the leafs as a list element of a branch, once this is complete you have a complete list of the branch and \
@@ -82,7 +87,6 @@ def collision_check(leaf, lut):
         return True
     else:
         return False
-
 ##
 # @name: leaf_destruction
 # @desc: given a branch with leafs, exhaust all leafs then return to the parent branch
@@ -90,7 +94,7 @@ def collision_check(leaf, lut):
 # @param: [maze] the maze, used for grabbing dimensions to check for a win condition
 # @param: [lut] lookup table of branches usedd for collision checking
 # @param: [completion_list] a list containing all of the previous winning conditions
-def leaf_destruction(branch, maze, completion_list, lut):
+def leaf_destruction(branch, maze, completion_list):
     removal_idx = [] #Stores a list of leafs to be killed off
     #Check the bounds of the array to see if there is a maze win condition
     for idx, leaf in enumerate(branch['leafs']):
@@ -99,10 +103,24 @@ def leaf_destruction(branch, maze, completion_list, lut):
                 print ("Removed " + str(leaf) + " because of win condition")
                 completion_list.append(leaf['steps'])
                 removal_idx.append(idx)
-            elif collision_check(leaf, lut):
+            elif collision_check(leaf, leaf['lut']):
                 print("Removed " + str(leaf) + " because of colision")
                 removal_idx.append(idx)
     for index in sorted(removal_idx, reverse = True):
         del branch['leafs'][index]
+##
+# @name: init_pool
+# @desc: Gets the next most recent chunk of valid work
+# @desc_ext: Generates a number of valid branches = to the number of processor \
+#   Generates a state where there is a number of outermost <= number of processors
+# @param:
+
+##
+# @name: branch_itr
+# @desc: branch iterator process, this is the process of iterating though the maze
+# @param: [branch] the branch the process will be evaluating
+# @param: [maze] the maze values
+def branch_itr(branch, maze):
+    workers = Pool(multiprocessing.cpu_count())
 
 

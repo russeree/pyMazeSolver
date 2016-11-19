@@ -86,5 +86,16 @@ def collision_check(leaf, lut):
 ##
 # @name: leaf_destruction
 # @desc: given a branch with leafs, exhaust all leafs then return to the parent branch
-# @param: [branch] the branch to be evaluated
-def leaf_destruction(branch)
+# @param: [leaf] the branch to be evaluated
+# @param: [maze] the maze, used for grabbing dimensions to check for a win condition
+# @param: [lut] lookup table of branches usedd for collision checking
+# @param: [completion_list] a list containing all of the previous winning conditions
+def leaf_destruction(branch, maze, completion_list):
+    removal_idx = [] #Stores a list of leafs to be killed off
+    #Check the bounds of the array to see if there is a maze win condition
+    for idx, leaf in enumerate(branch['leafs']):
+        if (leaf['y'] == (maze['height'] - 1)):
+            if (leaf['x'] == (maze['width'] - 1)):
+                completion_list.append(lead['id'])
+                removal_idx.append(idx)
+            elif collision_check(leaf, lut):

@@ -16,7 +16,7 @@ def legal_list(dims, loc):
     #Filer moves that would put the player out of the maze + and - bounds, place invalid indices in removal idx
     for idx, movement in enumerate(moves):
         #Filter the moves that cause negative array access (look up if there is a method to shortening this)
-        if(((loc[0] + movement[0]) < 0) or ((loc[1] + movement[1]) < 0) or ((loc[0] + movement[0]) > dims[0]) or ((loc[1] + movement[1]) > dims[1])):
+        if(((loc[0] + movement[0]) < 0) or ((loc[1] + movement[1]) < 0) or ((loc[0] + movement[0]) > (dims[0] - 1)) or ((loc[1] + movement[1]) > (dims[1]) - 1)):
             removal_idx.append(idx)
     #Now that you have a valid set of elements to remove; delete them from the list from greatest to least as not to affect ordering
     for index in sorted(removal_idx, reverse = True):
@@ -34,11 +34,11 @@ def leaf_gen(maze, branch):
     #overlay these moves onto the maze and list all possible moves
     #!!!FIXME!!! There is a row col addressing swap I do not understand
     for candidate in (legal_moves):
-        if(maze['maze'][candidate[0]][candidate[1]] == 1):
-            leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': branch['wall_built'], 'parent':[branch['x'],branch['y']], 'id': (branch['id'] + 1)}
+        if(maze['maze'][candidate[1]][candidate[0]] == 1):
+            leaf = {'x': candidate[0] + branch['x'], 'y': candidate[1] + branch['y'], 'leafs': [], 'wall_built': branch['wall_built'], 'parent':[branch['y'],branch['x']], 'steps': (branch['steps'] + 1)}
             leafs.append(leaf)
-        elif((maze['maze'][candidate[0]][candidate[1]] == 0) and (branch['wall_built'] == False)):
-            leaf = {'x': candidate[1], 'y': candidate[0], 'leafs': [], 'wall_built': True, 'parent':[branch['x'],branch['y']], 'id': (branch['id'] + 1)}
+        elif((maze['maze'][candidate[1]][candidate[0]] == 0) and (branch['wall_built'] == False)):
+            leaf = {'x': candidate[0] + branch['x'], 'y': candidate[1] + branch['y'], 'leafs': [], 'wall_built': True, 'parent':[branch['y'],branch['x']], 'steps': (branch['steps'] + 1)}
             leafs.append(leaf)
     return leafs
 ##
@@ -78,7 +78,7 @@ def branch_lut(branch, lut):
 # @return: Returns a boolean
 def collision_check(leaf, lut):
     #If the lookup for the next position is not empty return True for a collision
-    if(lut[leaf['y']][leaf['x']]['id'] != None):
+    if(lut[leaf['y']][leaf['x']] != []):
         return True
     else:
         return False
@@ -90,12 +90,19 @@ def collision_check(leaf, lut):
 # @param: [maze] the maze, used for grabbing dimensions to check for a win condition
 # @param: [lut] lookup table of branches usedd for collision checking
 # @param: [completion_list] a list containing all of the previous winning conditions
-def leaf_destruction(branch, maze, completion_list):
+def leaf_destruction(branch, maze, completion_list, lut):
     removal_idx = [] #Stores a list of leafs to be killed off
     #Check the bounds of the array to see if there is a maze win condition
     for idx, leaf in enumerate(branch['leafs']):
         if (leaf['y'] == (maze['height'] - 1)):
             if (leaf['x'] == (maze['width'] - 1)):
-                completion_list.append(lead['id'])
+                print ("Removed " + str(leaf) + " because of win condition")
+                completion_list.append(leaf['steps'])
                 removal_idx.append(idx)
             elif collision_check(leaf, lut):
+                print("Removed " + str(leaf) + " because of colision")
+                removal_idx.append(idx)
+    for index in sorted(removal_idx, reverse = True):
+        del branch['leafs'][index]
+
+

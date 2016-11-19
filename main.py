@@ -8,8 +8,8 @@ import maze_functions as mazeLib
 #Constants (non pythonic)
 debug = True
 lut = None
-grid = [[0,0,1,0],
-        [1,0,0,1],
+grid = [[0,0,0,0],
+        [1,1,0,1],
         [1,1,0,0],
         [1,1,1,0]]
 #Get some info about the 2D array analysis
@@ -28,9 +28,13 @@ for i in range (cols):
         if grid[i][j] == 1:
             grid[i][j] = 0
         else:
-            grid[i][j] = w
+            grid[i][j] = 1
+for i in grid:
+    print(i)
+#Keep a list of maze path values
+path_lengths = []
 #Initialize the branch lookup table
-lut = [[None for x in range(cols)] for y in range(rows)]
+lut = [[[] for x in range(cols)] for y in range(rows)]
 #Put the maze in a dictonary to make it readable and with easy to access parameters
 maze = {'maze': grid, 'height': rows, 'width': cols}
 #A tree will contain all of the branches
@@ -38,7 +42,12 @@ tree = []
 #Store the current minimum for best_child checking
 cur_min = None #The current minimum path
 #Initial branch [[col, row, last traversed leaf index, leaves, wall_built]]
-branch = {'x':0, 'y':0, 'leafs':[], 'wall_built': False, 'parent': None, 'steps':0}
+branch = {'x':3, 'y':2, 'leafs':[], 'wall_built': False, 'parent': None, 'steps':0}
 
-mazeLib.leaf_gen(maze,branch)
 mazeLib.grow_leafs(maze,branch)
+mazeLib.branch_lut(branch, lut)
+mazeLib.leaf_destruction(branch,maze,path_lengths,lut)
+
+print(path_lengths)
+for i in branch['leafs']:
+    print(i)

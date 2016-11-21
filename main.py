@@ -9,23 +9,36 @@ import maze_functions as mazeLib
 #Constants (non pythonic)
 debug = True
 lut = None
-grid = [[0,0,0,1],
-        [1,1,0,1],
-        [1,1,0,1],
-        [1,1,1,0]]
+grid = [
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+        [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 #Get some info about the 2D array analysis
 cols = len(grid[0])
 rows = len(grid)
 # Quick check to make sure the user isn't throwing some bogus dims on the array for maze solver.
-for col in range(rows):
-    if len(grid[col]) != rows:
-        sys.exit("Input grid is invlid: " + str(len(grid[col])) + " columns in row " + str(rows))
+#for col in range(rows):
+#    if len(grid[col]) != rows:
+#        sys.exit("Input grid is invlid: " + str(len(grid[col])) + " columns in row " + str(rows))
 #Print out some debug info
 if(debug):
     print("Your grid has " + str(rows) + " rows and " + str(cols) + " columns.")
 #First Invert the matrix for easy if else clause gen
-for i in range (cols):
-    for j in range (rows):
+for i in range (len(grid)):
+    for j in range (len(grid[i])):
         if grid[i][j] == 1:
             grid[i][j] = 0
         else:
@@ -43,6 +56,9 @@ tree = []
 #Store the current minimum for best_child checking
 cur_min = None #The current minimum path
 #Initial branch [[col, row, last traversed leaf index, leaves, wall_built]]
-branch = {'x':1, 'y':1, 'leafs':[], 'wall_built': False, 'parent': None, 'steps':0}
-
+branch = {'x':0, 'y':0, 'leafs':[], 'wall_built': False, 'parent': None, 'steps':0}
+#Run the iterator for the maze
 mazeLib.iterator(branch, maze, lut, path_lengths)
+#Sort the results and print the minimum
+path_lengths.sort()
+print("The shortest path is " +  str(path_lengths[0] + 1))

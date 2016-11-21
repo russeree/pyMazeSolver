@@ -10,6 +10,9 @@
 # @note: Only works with 2d arrays, does not eliminate your previous move
 # @note: Moves in the Y direction should be multiplied by negative one unless you want to invert the Y axis
 
+# Imports
+import copy
+
 def legal_list(dims, loc):
     #Default Template for valid moves (up, down, left, right], List = [[x,y], ...]
     moves = [[0,1],[0,-1],[-1,0],[1,0]]
@@ -32,7 +35,7 @@ def leaf_gen(maze, branch):
     leafs = [] #Store the leafs
     #legal positions for a leaf to grow
     legal_moves = legal_list([maze['width'],maze['height']], [branch['x'], branch['y']])
-    print(legal_moves)
+    #print(legal_moves)
     #overlay these moves onto the maze and list all possible moves
     #!!!FIXME!!! There is a row col addressing swap I do not understand
     for candidate in (legal_moves):
@@ -67,6 +70,7 @@ def grow_leafs(maze, branch):
 # @return: Returns a boolean
 def collision_check(leaf, lut):
     #If the lookup for the next position is not empty return True for a collision
+    #print ("Checking if leaf " + str(leaf) + "Colides with a lut element")
     if(lut[leaf['y']][leaf['x']] != []):
         return True
     else:
@@ -79,17 +83,18 @@ def collision_check(leaf, lut):
 # @param: [lut] lookup table of branches usedd for collision checking
 # @param: [completion_list] a list containing all of the previous winning conditions
 def leaf_destruction(branch, maze, lut, completion_list):
+    #print("Running leaf destructor on " + str(branch))
     removal_idx = [] #Stores a list of leafs to be killed off
     #Check the bounds of the array to see if there is a maze win condition
     for idx, leaf in enumerate(branch['leafs']):
-        if (leaf['y'] == (maze['height'] - 1)):
-            if (leaf['x'] == (maze['width'] - 1)):
-                print ("Removed " + str(leaf) + " because of win condition")
+        #print("Now checking for destruction " + str(leaf))
+        if (leaf['y'] == (maze['height'] - 1) and (leaf['x'] == (maze['width'] - 1))):
+                #print ("Removed " + str(leaf) + " because of win condition")
                 completion_list.append(leaf['steps'])
                 removal_idx.append(idx)
-            elif collision_check(leaf, lut):
-                print("Removed " + str(leaf) + " because of colision")
-                removal_idx.append(idx)
+        elif collision_check(leaf, lut):
+            #print("Removed " + str(leaf) + " because of colision")
+            removal_idx.append(idx)
     for index in sorted(removal_idx, reverse = True):
         del branch['leafs'][index]
 ##
@@ -99,24 +104,45 @@ def leaf_destruction(branch, maze, lut, completion_list):
 # @param: [maze] the maze to be solved for
 # @param: [lut] table of completed moves
 # @param: [paths] a list of completed path lengths
+# @note: Need to map branching to functions
 def iterator (seed_branch, maze, lut, paths):
     #Loop terminator
     complete = False
     #Setup the initial seed onto the lut
     cur_pos = [seed_branch['y'], seed_branch['x']] #Current active branch
     grow_leafs(maze, seed_branch)
-    print(seed_branch)
-    lut[cur_pos[0]][cur_pos[1]] = seed_bramch
+    #print(seed_branch)
+    lut[cur_pos[0]][cur_pos[1]] = seed_branch
     #The initial loop has been created and placed into the lookup tables
     while not complete:
-        print ("ITERATION DEBUG")
-        leaf_destruction(lut[cur_pos[0]][cur_pos[1]], maze, lut, paths)
+        #print("Iterator Debugging")
+        #print("Current Position before evaluation " + str(cur_pos))
+        #print("Look up table before evaluation")
+        #for each in lut:
+            #print(each)
+        #print("-----------------")
         if not lut[cur_pos[0]][cur_pos[1]]['leafs']:
-            cur_pos = lut[cur_pos[0]][cur_pos[1]]['parent']
-            del lut[cur_pos[0]][cur_pos[1]]['leafs'][0]
-            print("All leafs dead returning to parrent")
+            #print("Taking a step back becuase there are no leafs")
+            nxt_pos = lut[cur_pos[0]][cur_pos[1]]['parent']
+            lut[cur_pos[0]][cur_pos[1]] = []
+            del lut[nxt_pos[0]][nxt_pos[1]]['leafs'][0]
+            cur_pos = nxt_pos
+            #for each in lut:
+            #    print(each)
         else:
-            print ("A valid leaf(s) exist, moving to leaf index 0")
-            grow_leafs(maze, lut[cur_pos[0]][cur_pos[1]]['leafs'][0])
-            branch_2_lut(lut[cur_pos[0]][cur_pos[1]]['leafs'][0], lut)
-            br = raw_input("step")
+            # print("moving into a path")
+            lut[lut[cur_pos[0]][cur_pos[1]]['leafs'][0]['y']][lut[cur_pos[0]][cur_pos[1]]['leafs'][0]['x']] = lut[cur_pos[0]][cur_pos[1]]['leafs'][0]
+            tmp_pos = copy.copy(cur_pos)
+            cur_pos[0] = lut[tmp_pos[0]][tmp_pos[1]]['leafs'][0]['y']
+            cur_pos[1] = lut[tmp_pos[0]][tmp_pos[1]]['leafs'][0]['x']
+            grow_leafs(maze, lut[cur_pos[0]][cur_pos[1]])
+            leaf_destruction(lut[cur_pos[0]][cur_pos[1]], maze, lut, paths)
+            #print (cur_pos)
+            #for each in lut:
+                #print (each)
+        if not lut[0][0]['leafs']:
+            #print(lut[0][0]['leafs'])
+            complete = True
+        #print(" ")
+    print("Completed")
+    print(paths)

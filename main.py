@@ -39,10 +39,6 @@ grid = [
 #Get some info about the 2D array analysis
 cols = len(grid[0])
 rows = len(grid)
-# Quick check to make sure the user isn't throwing some bogus dims on the array for maze solver.
-#for col in range(rows):
-#    if len(grid[col]) != rows:
-#        sys.exit("Input grid is invlid: " + str(len(grid[col])) + " columns in row " + str(rows))
 #Print out some debug info
 if(debug):
     print("Your grid has " + str(rows) + " rows and " + str(cols) + " columns.")

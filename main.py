@@ -57,10 +57,6 @@ path_lengths = []
 lut = [[[] for x in range(cols)] for y in range(rows)]
 #Put the maze in a dictonary to make it readable and with easy to access parameters
 maze = {'maze': grid, 'height': rows, 'width': cols}
-#A tree will contain all of the branches
-tree = []
-#Store the current minimum for best_child checking
-cur_min = None #The current minimum path
 #Initial branch [[col, row, last traversed leaf index, leaves, wall_built]]
 branch = {'x':0, 'y':0, 'leafs':[], 'wall_built': False, 'parent': None, 'steps':0}
 #Run the iterator for the maze

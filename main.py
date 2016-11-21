@@ -9,9 +9,9 @@ import maze_functions as mazeLib
 #Constants (non pythonic)
 debug = True
 lut = None
-grid = [[0,0,0,0],
+grid = [[0,0,0,1],
         [1,1,0,1],
-        [1,1,0,0],
+        [1,1,0,1],
         [1,1,1,0]]
 #Get some info about the 2D array analysis
 cols = len(grid[0])
@@ -43,12 +43,6 @@ tree = []
 #Store the current minimum for best_child checking
 cur_min = None #The current minimum path
 #Initial branch [[col, row, last traversed leaf index, leaves, wall_built]]
-branch = {'x':3, 'y':2, 'leafs':[], 'wall_built': False, 'parent': None, 'steps':0, 'lut': None}
+branch = {'x':1, 'y':1, 'leafs':[], 'wall_built': False, 'parent': None, 'steps':0}
 
-mazeLib.grow_leafs(maze,branch)
-mazeLib.branch_lut(branch, lut)
-mazeLib.leaf_destruction(branch,maze,path_lengths)
-
-print(path_lengths)
-for i in branch['leafs']:
-    print(i)
+mazeLib.iterator(branch, maze, lut, path_lengths)

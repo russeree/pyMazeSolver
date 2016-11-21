@@ -2,17 +2,15 @@
 # @auth: Reese Russell
 # @desc: Python Maze Solver Functions
 
+# Imports
+import copy
+
 ##
 # @desc: Generates a list of legal test points for leaf generation
 # @param: [dims] Maze dimensions [x][y]
 # @param: [loc] test location [x][y]
 # @return: [moves] this will be where the list of legal moves is stored
-# @note: Only works with 2d arrays, does not eliminate your previous move
-# @note: Moves in the Y direction should be multiplied by negative one unless you want to invert the Y axis
-
-# Imports
-import copy
-
+# @note: Only works with 2d arrays, does not eliminate your previous move# @note: Moves in the Y direction should be multiplied by negative one unless you want to invert the Y axis
 def legal_list(dims, loc):
     #Default Template for valid moves (up, down, left, right], List = [[x,y], ...]
     moves = [[0,1],[0,-1],[-1,0],[1,0]]
@@ -35,9 +33,7 @@ def leaf_gen(maze, branch):
     leafs = [] #Store the leafs
     #legal positions for a leaf to grow
     legal_moves = legal_list([maze['width'],maze['height']], [branch['x'], branch['y']])
-    #print(legal_moves)
     #overlay these moves onto the maze and list all possible moves
-    #!!!FIXME!!! There is a row col addressing swap I do not understand
     for candidate in (legal_moves):
         if(maze['maze'][candidate[1] + branch['y']][candidate[0] + branch['x']] == 1):
             leaf = {'x': candidate[0] + branch['x'], 'y': candidate[1] + branch['y'], 'leafs': [], 'wall_built': branch['wall_built'], 'parent':[branch['y'],branch['x']], 'steps': (branch['steps'] + 1)}
@@ -54,6 +50,7 @@ def leaf_gen(maze, branch):
 def grow_leafs(maze, branch):
     #places leafs in in the current branch for evaluation
     branch['leafs'] = leaf_gen(maze, branch)
+
 ##
 # @notes: At this point I have a function to generate valid leafs from a given branch \
 # then I have a way to add the leafs as a list element of a branch, once this is complete you have a complete list of the branch and \
@@ -61,6 +58,7 @@ def grow_leafs(maze, branch):
 # the goal is to exhaust kill all the leafs of a branch, A leaf can die in one of two ways,
 #  - The leaf has beaten the maze
 #  - The leaf has no more moves to be consumed [No valid moves on the board, all valid move runs into an existing path, the wall has been built]
+##
 
 ##
 # @name: collision_check
@@ -120,29 +118,23 @@ def iterator (seed_branch, maze, lut, paths):
         #print("Look up table before evaluation")
         #for each in lut:
             #print(each)
-        #print("-----------------")
+        # If there are no more valid leafs on a branch go back to the parent branch and kill the parents leaf of the branch
         if not lut[cur_pos[0]][cur_pos[1]]['leafs']:
-            #print("Taking a step back becuase there are no leafs")
             nxt_pos = lut[cur_pos[0]][cur_pos[1]]['parent']
             lut[cur_pos[0]][cur_pos[1]] = []
             del lut[nxt_pos[0]][nxt_pos[1]]['leafs'][0]
             cur_pos = nxt_pos
-            #for each in lut:
-            #    print(each)
+        #if there are leafs, add the branches first leaf available in the index to the lut, then grow leafs on the new branch in the lut
         else:
-            # print("moving into a path")
             lut[lut[cur_pos[0]][cur_pos[1]]['leafs'][0]['y']][lut[cur_pos[0]][cur_pos[1]]['leafs'][0]['x']] = lut[cur_pos[0]][cur_pos[1]]['leafs'][0]
             tmp_pos = copy.copy(cur_pos)
             cur_pos[0] = lut[tmp_pos[0]][tmp_pos[1]]['leafs'][0]['y']
             cur_pos[1] = lut[tmp_pos[0]][tmp_pos[1]]['leafs'][0]['x']
             grow_leafs(maze, lut[cur_pos[0]][cur_pos[1]])
             leaf_destruction(lut[cur_pos[0]][cur_pos[1]], maze, lut, paths)
-            #print (cur_pos)
-            #for each in lut:
-                #print (each)
+        #Once there are no more leafs in the starting location forced to lut index [0][0] for now.
         if not lut[0][0]['leafs']:
-            #print(lut[0][0]['leafs'])
             complete = True
-        #print(" ")
+    #Since the iterator is completed, print the path lengths
     print("Completed")
     print(paths)

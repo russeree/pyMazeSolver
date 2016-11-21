@@ -6,6 +6,16 @@
 import sys
 import maze_functions as mazeLib
 
+##
+# @Schedule
+# 1. Add another node that starts at another valid seed location and uses
+# another thread/process, once a branch has been exhausted, list it's shortest
+# path in another lookup table, There will be 2 luts, one for solve paths with
+# walls and one for without, if the leaf is set to become a branch at that point
+# evaluate it to see if it higher or lower than that paths shortest value, if lower
+# sum and added to list of complete, if higher kill the leaf. This should be
+# added to the leaf destruction tab.
+
 #Constants (non pythonic)
 debug = True
 lut = None

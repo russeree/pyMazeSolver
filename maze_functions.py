@@ -66,7 +66,7 @@ def grow_leafs(maze, branch):
 # @desc: [leaf] the leaf node to be checked
 # @desc: [lut] Lookup table of branches
 # @return: Returns a boolean
-def collision_check(leaf, lut):
+def collision_check(leaf, lut, opt_lut, completion_list):
     #If the lookup for the next position is not empty return True for a collision
     #print ("Checking if leaf " + str(leaf) + "Colides with a lut element")
     if(lut[leaf['y']][leaf['x']] != []):
@@ -80,21 +80,31 @@ def collision_check(leaf, lut):
 # @param: [maze] the maze, used for grabbing dimensions to check for a win condition
 # @param: [lut] lookup table of branches usedd for collision checking
 # @param: [completion_list] a list containing all of the previous winning conditions
-def leaf_destruction(branch, maze, lut, completion_list):
+# @param: [opt_lut] A lookup table that contains distances for a win condition
+def leaf_destruction(branch, maze, lut, completion_list, opt_lut):
     #print("Running leaf destructor on " + str(branch))
     removal_idx = [] #Stores a list of leafs to be killed off
     #Check the bounds of the array to see if there is a maze win condition
     for idx, leaf in enumerate(branch['leafs']):
         #print("Now checking for destruction " + str(leaf))
         if (leaf['y'] == (maze['height'] - 1) and (leaf['x'] == (maze['width'] - 1))):
-                #print ("Removed " + str(leaf) + " because of win condition")
-                completion_list.append(leaf['steps'])
+                if not completion_list:
+                    completion_list.append(leaf['steps'])
+                elif(leaf['steps'] < completion_list[0]):
+                    completion_list[0] = leaf['steps']
                 removal_idx.append(idx)
-        elif collision_check(leaf, lut):
+                if leaf['wall_built']:
+                    opt_lut[leaf['parent'][0]][leaf['parent'][1]]['wall'] = 1
+                else:
+                    opt_lut[leaf['parent'][0]][leaf['parent'][1]]['no_wall'] = 1
+        elif collision_check(leaf, lut, opt_lut, completion_list):
             #print("Removed " + str(leaf) + " because of colision")
+            removal_idx.append(idx)
+        elif (completion_list and (leaf['steps'] >= completion_list[0])):
             removal_idx.append(idx)
     for index in sorted(removal_idx, reverse = True):
         del branch['leafs'][index]
+
 ##
 # @name: iterator
 # @desc: create and exhaust all branches seeking win conditions
@@ -103,7 +113,7 @@ def leaf_destruction(branch, maze, lut, completion_list):
 # @param: [lut] table of completed moves
 # @param: [paths] a list of completed path lengths
 # @note: Need to map branching to functions
-def iterator (seed_branch, maze, lut, paths):
+def iterator (seed_branch, maze, lut, paths, opt_lut):
     #Loop terminator
     complete = False
     #Setup the initial seed onto the lut
@@ -131,10 +141,9 @@ def iterator (seed_branch, maze, lut, paths):
             cur_pos[0] = lut[tmp_pos[0]][tmp_pos[1]]['leafs'][0]['y']
             cur_pos[1] = lut[tmp_pos[0]][tmp_pos[1]]['leafs'][0]['x']
             grow_leafs(maze, lut[cur_pos[0]][cur_pos[1]])
-            leaf_destruction(lut[cur_pos[0]][cur_pos[1]], maze, lut, paths)
+            leaf_destruction(lut[cur_pos[0]][cur_pos[1]], maze, lut, paths, opt_lut)
         #Once there are no more leafs in the starting location forced to lut index [0][0] for now.
         if not lut[0][0]['leafs']:
             complete = True
     #Since the iterator is completed, print the path lengths
     print("Completed")
-    print(paths)

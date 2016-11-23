@@ -19,23 +19,10 @@ import maze_functions as mazeLib
 #Constants (non pythonic)
 debug = True
 lut = None
-grid = [
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+opt_lut = None
+grid = [[0, 0, 0, 1],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0]]
 #Get some info about the 2D array analysis
 cols = len(grid[0])
 rows = len(grid)
@@ -55,12 +42,13 @@ for i in grid:
 path_lengths = []
 #Initialize the branch lookup table
 lut = [[[] for x in range(cols)] for y in range(rows)]
+opt_lut = [[{'wall': None, 'no_wall': None} for x in range(cols)] for y in range(rows)]
 #Put the maze in a dictonary to make it readable and with easy to access parameters
 maze = {'maze': grid, 'height': rows, 'width': cols}
 #Initial branch [[col, row, last traversed leaf index, leaves, wall_built]]
 branch = {'x':0, 'y':0, 'leafs':[], 'wall_built': False, 'parent': None, 'steps':0}
 #Run the iterator for the maze
-mazeLib.iterator(branch, maze, lut, path_lengths)
+mazeLib.iterator(branch, maze, lut, path_lengths, opt_lut)
 #Sort the results and print the minimum
 path_lengths.sort()
 print("The shortest path is " +  str(path_lengths[0] + 1))

@@ -123,11 +123,6 @@ def iterator (seed_branch, maze, lut, paths, opt_lut):
     lut[cur_pos[0]][cur_pos[1]] = seed_branch
     #The initial loop has been created and placed into the lookup tables
     while not complete:
-        #print("Iterator Debugging")
-        #print("Current Position before evaluation " + str(cur_pos))
-        #print("Look up table before evaluation")
-        #for each in lut:
-            #print(each)
         # If there are no more valid leafs on a branch go back to the parent branch and kill the parents leaf of the branch
         if not lut[cur_pos[0]][cur_pos[1]]['leafs']:
             nxt_pos = lut[cur_pos[0]][cur_pos[1]]['parent']
